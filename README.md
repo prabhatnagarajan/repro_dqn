@@ -25,7 +25,7 @@ To begin, run
 
 ```
 git clone https://github.com/prabhatnagarajan/repro_dqn.git
-cd thesis  
+cd repro_dqn  
 sudo ./install.sh  
 ```
 
@@ -106,6 +106,7 @@ This file contains the constants, or parameters for your experiment. Most of the
 CHECKPOINT_DIR="/home/ubuntu/breakoutresults/checkpoints"
 ARGS_OUTPUT_FILE="/home/ubuntu/breakoutresults/args.txt"
 EVAL_ARGS_OUTPUT_FILE="/home/ubuntu/breakoutresults/evalargs.txt"
+EVAL_INIT_STATES_FILE="/home/ubuntu/repro_dqn/files/initstates.txt"
 ``` 
 
 The checkpoint directory contains the networks that will be evaluated.
@@ -209,10 +210,6 @@ I used a number of references in building this. I apologize for any references I
 * [Devsisters' DQN](https://github.com/devsisters/DQN-tensorflow)
 * [Discussion](https://github.com/dennybritz/reinforcement-learning/issues/30)
 
-## References
+## Questions
 
-1. Mnih, Volodymyr, et al. "Human-level control through deep reinforcement learning." Nature 518.7540 (2015): 529.
-
-2. Machado, Marlos C., et al. "Revisiting the Arcade Learning Environment: Evaluation Protocols and Open Problems for General Agents." Journal of Artificial Intelligence Research 61 (2018): 523-562.
-
-3. Paszke, Adam, et al. "Automatic differentiation in PyTorch." (2017).
+If you have any questions or difficulties, feel free to open an issue or email me at prabhatn@cs.utexas.edu.
