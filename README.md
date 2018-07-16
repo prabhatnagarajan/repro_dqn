@@ -1,6 +1,17 @@
 # Deterministic Reproducibility in Deep Reinforcement Learning
 
 This repository contains a deterministic implementation of Deep Q-learning using PyTorch and Python 2.7.  This is done in the Arcade Learning Environment.
+## BibTeX
+```
+@InProceedings{nagarajan2018impact,
+  author = {Nagarajan, Prabhat and Warnell, Garrett and Stone, Peter},
+  title = {The Impact of Nondeterminism on Reproducibility in Deep Reinforcement Learning},
+  booktitle = {2nd Reproducibility in Machine Learning Workshop at ICML 2018, Stockholm, Sweden},
+  location = {Stockholm, Sweden},
+  month = {July},
+  year = {2018}
+} 
+```
 
 ## Getting Started
 
