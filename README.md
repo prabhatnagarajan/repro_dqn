@@ -1,6 +1,10 @@
 # Deterministic Reproducibility in Deep Reinforcement Learning
 
 This repository contains a deterministic implementation of Deep Q-learning using PyTorch and Python 2.7.  This is done in the Arcade Learning Environment.
+
+## NOTE:
+This implementation was used for the preprint [Deterministic Implementations for Reproducibility in Deep Reinforcement Learning](https://arxiv.org/abs/1809.05676). However, the remainder of this README contains the setup and implementation details used for a prior workshop paper. For now, please see the paper for the full experimental setup and hyperparameters. This repository will later be updated to have the information of both the arXiv paper and the workshop paper . **However, if all you seek is a deterministic implementation of DQN, this repository will suffice.**
+
 ## BibTeX
 ```
 @InProceedings{nagarajan2018impact,
