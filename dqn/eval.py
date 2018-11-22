@@ -27,6 +27,13 @@ def perform_no_ops(ale, preprocessor, state, random_state):
 		preprocessor.add(ale.getScreenRGB())
 	state.add_frame(preprocessor.preprocess())
 
+def perform_action_sweep(ale, preprocessor, state):
+	#perform a sweep through entire action set
+	for action in ale.getMinimalActionSet().tolist():
+		ale.act(action)
+		preprocessor.add(ale.getScreenRGB())
+	state.add_frame(preprocessor.preprocess())
+
 def log_eval(num_episodes, episodic_rewards, total_reward, epoch):
 	print ""
 	print "Evaluation:"
@@ -97,7 +104,7 @@ def eval_greedy(ale, agent, sequences, epoch):
 			if (i + 1) % ACT_REPEAT == 0:
 				state.add_frame(preprocessor.preprocess())
 		count = 0
-		lives= ale.lives()
+		lives = ale.lives()
 		while not (ale.game_over() or (CAP_EVAL_EPISODES and episode_frames > EVAL_MAX_FRAMES)):
 			action = agent.eGreedy_action(state.get_state(), 0.0)
 			reward = 0
@@ -109,6 +116,8 @@ def eval_greedy(ale, agent, sequences, epoch):
 			state.add_frame(img)
 			episode_reward += reward
 			count+= 1
+			if ale.lives() < lives:
+				perform_action_sweep(ale, preprocessor, state)
 		print "Episode " + str(episode_num) + " reward is " + str(episode_reward)
 		episode_rewards.append(episode_reward)
 		episode_num += 1

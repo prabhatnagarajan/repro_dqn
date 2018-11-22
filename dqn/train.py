@@ -116,7 +116,9 @@ def train(minibatch_size=MINIBATCH_SIZE, replay_capacity=REPLAY_CAPACITY,
 		   
 
 		log(episode_num, total_reward, num_frames)
-		ale.reset_game()
+		# if game is not over, then continue with new life
+		if ale.game_over():
+			ale.reset_game()
 		episode_num = episode_num + 1
 
 	if num_frames == TRAINING_FRAMES:
