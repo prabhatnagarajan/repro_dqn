@@ -118,6 +118,7 @@ def eval_greedy(ale, agent, sequences, epoch):
 			count+= 1
 			if ale.lives() < lives:
 				perform_action_sweep(ale, preprocessor, state)
+				lives = ale.lives()
 		print "Episode " + str(episode_num) + " reward is " + str(episode_reward)
 		episode_rewards.append(episode_reward)
 		episode_num += 1
