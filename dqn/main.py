@@ -1,9 +1,14 @@
 import torch
+import argparse
+import numpy as np
+
+def print_args(args, file):
+	arguments = vars(args)
+	for arg in arguments:
+		file.write(str(arg) + ":" + str(arguments[arg]) + "\n")
 
 if __name__ == '__main__':
-	print_args(False)
-	parser = argsparse.ArgumentParser()
-	parser.add_argument()
+	parser = argparse.ArgumentParser()
 
 	##################################################
 	##            Determinism parameters            ##
@@ -71,6 +76,83 @@ if __name__ == '__main__':
 	parser.add_argument("--tgt-update-freq", type=int, default=10000)
 	parser.add_argument("--discount", type=float, default=0.99)
 	parser.add_argument("--act-repeat", type=int, default=4)
+	# Number of timesteps between gradient updates.
+	# 4 if NATURE else 2
+	parser.add_argument("--update-freq", type=int, default=4)
+	parser.add_argument("--learning-rate", type=float, default=0.00025)
+	# 0.00025 if NATURE else 1e-4
+	# initial exploration epsilon
+	parser.add_argument("--initial-epsilon", type=float, default=1.0)
+	# the lowest epsilon used in the training process
+	parser.add_argument("--final-epsilon", type=float, default=0.1)
+	# 0.01 if REPEAT_ACTION_PROBABILITY > 0.0 else 0.1
+	'''
+	In the first FINAL_EXPLORATION_FRAME frames, we anneal
+	the exploration epsilon from INITIAL_EPSILON to
+	FINAL_EPSILON
+	'''
+	parser.add_argument("--final-exploration-frame", type=int, default=1000000)
+	parser.add_argument("--replay-start-size", type=int, default=50000)
+	'''
+	The maximum number of no-ops at
+	the beginning of an episode.
+	'''
+	parser.add_argument("--no-op-max", type=int, default=30)
+	parser.add_argument("--alpha", type=float, default=0.95)
+	parser.add_argument("--min-squared-gradient", type=float, default=0.01)
+	# 0.01 if NATURE else 1e-6
+	'''
+	The exploration epsilon used at 
+	test time.
+	'''
+	parser.add_argument("--test-epsilon", type=float, default=0.05)
+	# 0.005 if REPEAT_ACTION_PROBABILITY > 0.0 else 0.05
+	'''
+	In some Atari games the agent has many lives.
+	DEATH_ENDS_EPISODE specifies whether we should terminate
+	an episode on the loss of a life during training.
+	'''
+	# True if NATURE else False
+	parser.add_argument("--death-ends-episode", type=bool, default=True)
+
+	##################################################
+	##            Evaluation Parameters             ##
+	##################################################
+	parser.add_argument("--eval-freq", type=int, default=250000)
+	#EVAL_FREQ = 250000 if NATURE else 100000
+	parser.add_argument("--eval-steps", type=int, default=125000)
+	parser.add_argument("--cap-eval-episodes", type=bool, default=True)
+	parser.add_argument("--eval-max-steps", type=int, default=18000)
+	parser.add_argument("--eval-episodes", type=int, default=100)
+	parser.add_argument("--eval-batch-seed", type=int, default=123)
+	parser.add_argument("--eval-exp-seed", type=int, default=123)
+	parser.add_argument("--eval-no-op-seed", type=int, default=123)
+	parser.add_argument("--eval-q-seed", type=int, default=123)
+	parser.add_argument("--eval-q-no-op-seed", type=int, default=123)
+
+	parser.add_argument("--eval-init-states-file", type=str,
+						default="/home/ubuntu/repro_dqn/files/initstates.txt")
+
+	##################################################
+	##                   Files                      ##
+	##################################################
+	'''
+	CHECKPOINT_DIR - directory to store the network checkpoints for reloading
+	ARGS_OUTPUT_FILE - file to output the arguments from this file!
+	EVAL_ARGS_OUTPUT_FILE - file output the evaluations to
+	'''
+	parser.add_argument("--checkpoint-dir", type=str,
+						default="/home/ubuntu/breakoutresults/checkpoints")
+	parser.add_argument("--args-output-file", type=str,
+						default="/home/ubuntu/breakoutresults/args.txt")
+	parser.add_argument("--eval-args-output-file", type=str,
+						default="/home/ubuntu/breakoutresults/evalargs.txt")
+	##################################################
+	##            Weight storage Parameters         ##
+	##################################################
+	parser.add_argument("--checkpoint-frequency", type=int,
+						default=250000)
+	#CHECKPOINT FREQUENCY SHOULD EQUAL EVAL FREQUENCY
 
 	args = parser.parse_args()
 
@@ -93,5 +175,6 @@ if __name__ == '__main__':
 	    torch.backends.cudnn.deterministic = args.gpu_determinism
 	else:
 	    print "Not using cuda..."
+	args_file = open(args.args_output_file, "w")
+	print_args(args, args_file)
 
-	train()

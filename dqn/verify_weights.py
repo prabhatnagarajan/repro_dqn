@@ -10,7 +10,6 @@ import torch
 CHECKPOINT_FOLDERS = [
 "/home/ubuntu/breakoutresults/checkpoints/breakout",
 "/home/ubuntu/breakoutresults/checkpoints/breakout"]
-INTERVAL=constants.INTERVAL
 NATURE=constants.NATURE
 
 def checkpoints_all_exist(epoch):
