@@ -227,4 +227,4 @@ I used a number of references in building this. I apologize for any references I
 
 ## Questions
 
-If you have any questions or difficulties, feel free to open an issue or email me at prabhatn@cs.utexas.edu.
+If you have any questions or difficulties, feel free to open an issue or email me at prabhat@prabhatnagarajan.com.
