@@ -1,6 +1,7 @@
 import torch
 import argparse
 import numpy as np
+from train import train
 
 def print_args(args, file):
 	arguments = vars(args)
@@ -178,3 +179,17 @@ if __name__ == '__main__':
 	args_file = open(args.args_output_file, "w")
 	print_args(args, args_file)
 
+	train(training_frames=args.training_frames,
+		minibatch_size=args.minibatch_size,
+		replay_capacity=args.replay_capacity, 
+		hist_len=args.hist_len,
+		tgt_update_freq=args.tgt_update_freq,
+		discount=args.discount,
+		act_rpt=args.act_repeat,
+		upd_freq=args.update_freq, 
+		init_epsilon=args.initial_epsilon,
+		fin_epsilon=args.final_epsilon, 
+		fin_exp=args.final_exploration_frame,
+		replay_start_size=args.replay_start_size, 
+		no_op_max=args.no_op_max,
+		ale_seed=args.ale_seed)

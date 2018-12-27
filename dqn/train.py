@@ -1,6 +1,5 @@
 import sys
 import os
-from constants import *
 from dqn import DQN
 from ale_wrapper import ALEInterfaceWrapper
 from collections import deque
@@ -11,12 +10,19 @@ from replaybuffer import *
 from torch.autograd import Variable
 import utils
 
-def train(minibatch_size=MINIBATCH_SIZE, replay_capacity=REPLAY_CAPACITY, 
-	hist_len=HIST_LEN, tgt_update_freq=TGT_UPDATE_FREQ,
-	discount=DISCOUNT, act_rpt=ACT_REPEAT, upd_freq=UPDATE_FREQ, 
-	init_epsilon=INITIAL_EPSILON, fin_epsilon=FINAL_EPSILON, 
-	fin_exp=FINAL_EXPLORATION_FRAME, replay_start_size=REPLAY_START_SIZE, 
-	no_op_max=NO_OP_MAX):
+def train(training_frames,
+		minibatch_size,
+		replay_capacity, 
+		hist_len,
+		tgt_update_freq,
+		discount,
+		act_rpt,
+		upd_freq, 
+		init_epsilon,
+		fin_epsilon, 
+		fin_exp,
+		replay_start_size, 
+		no_op_max):
 	#Create ALE object
 	if len(sys.argv) < 2:
 	  print 'Usage:', sys.argv[0], 'rom_file'
@@ -24,7 +30,7 @@ def train(minibatch_size=MINIBATCH_SIZE, replay_capacity=REPLAY_CAPACITY,
 	ale = ALEInterfaceWrapper()
 
 	#Set the random seed for the ALE
-	ale.setInt('random_seed', ALE_SEED)
+	ale.setInt('random_seed', ale_seed)
 
 	# Load the ROM file
 	ale.loadROM(sys.argv[1])
@@ -50,7 +56,7 @@ def train(minibatch_size=MINIBATCH_SIZE, replay_capacity=REPLAY_CAPACITY,
 	num_frames = 0 #same as time step
 	episode_num = 1
 	# Main training loop
-	while num_frames < TRAINING_FRAMES:
+	while num_frames < training_frames:
 		# create a state variable of size hist_len
 		state = State(hist_len)
 		preprocessor = Preprocessor()
@@ -121,9 +127,9 @@ def train(minibatch_size=MINIBATCH_SIZE, replay_capacity=REPLAY_CAPACITY,
 			ale.reset_game()
 		episode_num = episode_num + 1
 
-	if num_frames == TRAINING_FRAMES:
+	if num_frames == training_frames:
 		evaluate(ale, agent, no_op_max, hist_len, act_rpt, num_frames, random_states_memory)
-		agent.checkpoint_network(TRAINING_FRAMES/CHECKPOINT_FREQUENCY)
+		agent.checkpoint_network(training/CHECKPOINT_FREQUENCY)
 	print "Number " + str(num_frames)
 
 def log(episode_num, reward, frames):
