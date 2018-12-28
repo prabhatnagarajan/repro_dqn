@@ -60,3 +60,14 @@ def float_tensor(input):
 		return torch.cuda.FloatTensor(input)
 	else:
 		return torch.FloatTensor(input)
+
+def perform_no_ops(ale, no_op_max, preprocessor, state, random_state):
+	#perform nullops
+	num_no_ops = random_state.randint(1, no_op_max + 1)
+	for _ in range(num_no_ops):
+		ale.act(0)
+		preprocessor.add(ale.getScreenRGB())
+	if len(preprocessor.preprocess_stack) < 2:
+		ale.act(0)
+		preprocessor.add(ale.getScreenRGB())
+	state.add_frame(preprocessor.preprocess())

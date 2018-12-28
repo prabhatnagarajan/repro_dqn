@@ -2,8 +2,6 @@
 from cnn import NatureNet, NipsNet
 import os
 import numpy as np
-from constants import *
-from pdb import set_trace
 import utils
 import copy
 import torch.nn as nn

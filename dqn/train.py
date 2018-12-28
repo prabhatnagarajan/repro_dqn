@@ -22,7 +22,13 @@ def train(training_frames,
 		fin_epsilon, 
 		fin_exp,
 		replay_start_size, 
-		no_op_max):
+		no_op_max,
+		death_ends_episode,
+		ale_seed,
+		eval_freq,
+		checkpoint_frequency,
+		rnd_no_op,
+		evaluator):
 	#Create ALE object
 	if len(sys.argv) < 2:
 	  print 'Usage:', sys.argv[0], 'rom_file'
@@ -61,15 +67,15 @@ def train(training_frames,
 		state = State(hist_len)
 		preprocessor = Preprocessor()
 		# perform a random number of no ops to start the episode
-		perform_no_ops(ale, no_op_max, preprocessor, state)
+		utils.perform_no_ops(ale, no_op_max, preprocessor, state, rnd_no_op)
 		# total episode reward is 0
 		total_reward = 0
 		lives = ale.lives()
 		episode_done = False
 		# episode loop
 		while not episode_done:
-			if num_frames % CHECKPOINT_FREQUENCY == 0:
-				epoch = num_frames/CHECKPOINT_FREQUENCY
+			if num_frames % checkpoint_frequency == 0:
+				epoch = num_frames/checkpoint_frequency
 				agent.checkpoint_network(epoch)
 
 			action = agent.get_action(state.get_state())
@@ -105,7 +111,7 @@ def train(training_frames,
 				# anneal epsilon.
 				epsilon = max(epsilon - epsilon_delta, fin_epsilon)
 				agent.set_epsilon(epsilon)
-				if num_frames % EVAL_FREQ == 0:
+				if num_frames % eval_freq == 0:
 					evaluate(ale, agent, no_op_max, hist_len, act_rpt, num_frames, random_states_memory)
 				if num_frames % upd_freq == 0:
 					agent.train(replay_memory, minibatch_size) 
@@ -129,7 +135,7 @@ def train(training_frames,
 
 	if num_frames == training_frames:
 		evaluate(ale, agent, no_op_max, hist_len, act_rpt, num_frames, random_states_memory)
-		agent.checkpoint_network(training/CHECKPOINT_FREQUENCY)
+		agent.checkpoint_network(training/checkpoint_frequency)
 	print "Number " + str(num_frames)
 
 def log(episode_num, reward, frames):
@@ -145,7 +151,7 @@ def log_eval(num_episodes, episodic_rewards, total_reward, num_frames, avg_max_q
 	print ""
 	print "Evaluation:"
 	print "-------------------------------------------------------"
-	print "Epoch Number: " + str(int(num_frames/EVAL_FREQ))
+	print "Epoch Number: " + str(int(num_frames/eval_freq))
 	print "Average Maximum Q-value: " + str(avg_max_q)
 	print "Number of Episodes: " + str(num_episodes)
 	print "Total Reward: " + str(total_reward)
@@ -157,57 +163,6 @@ def log_eval(num_episodes, episodic_rewards, total_reward, num_frames, avg_max_q
 		print "Rewards: " + str(episodic_rewards)
 	print "-------------------------------------------------------"
 	print ""
-
-def evaluate(ale, agent, no_op_max, hist_len, act_rpt, frames, held_out_states):
-	if not EVALUATION_PHASE:
-		return
-	cum_reward = 0
-	episode_rewards = []
-	for _ in range(EVAL_EPISODES):
-		ale.reset_game()
-		preprocessor = Preprocessor()
-		episode_reward = 0
-		state = State(hist_len)
-		perform_no_ops(ale, no_op_max, preprocessor, state)
-		episode_frames = 0
-		episode_reward = 0
-		while not (ale.game_over() or (CAP_EVAL_EPISODES and episode_frames > EVAL_MAX_FRAMES)):
-			action = agent.eGreedy_action(state.get_state(), TEST_EPSILON)
-			reward = 0
-			for i in range(act_rpt):
-				reward += ale.act(action)
-				preprocessor.add(ale.getScreenRGB())
-				episode_frames += 1
-			img = preprocessor.preprocess()
-			state.add_frame(img)
-			episode_reward += reward
-				
-		cum_reward += episode_reward
-		episode_rewards.append(episode_reward)
-	#compute average maximum q value on a set of held out states
-	total_max_q = 0.0
-	if len(held_out_states) > 0:
-		for experience in held_out_states:
-			net_outputs = agent.prediction_net(Variable(utils.float_tensor(experience.state)))
-			q_vals = net_outputs[len(net_outputs) - 1].data.cpu().numpy()
-			total_max_q += np.amax(q_vals)
-		avg_max_q = total_max_q/float(len(held_out_states))
-	else:
-		# just set to 0 by default
-		avg_max_q = 0
-	log_eval(EVAL_EPISODES, episode_rewards, cum_reward, frames, avg_max_q)
-
-def perform_no_ops(ale, no_op_max, preprocessor, state):
-	#perform nullops
-	if USE_NO_OPS:
-		num_no_ops = RNDNO_OP.randint(1, no_op_max + 1)
-		for _ in range(num_no_ops):
-			ale.act(0)
-			preprocessor.add(ale.getScreenRGB())
-	if len(preprocessor.preprocess_stack) < 2:
-		ale.act(0)
-		preprocessor.add(ale.getScreenRGB())
-	state.add_frame(preprocessor.preprocess())
 
 def rom_name(path):
 	return os.path.splitext(os.path.basename(path))[0]

@@ -1,6 +1,7 @@
 import torch
 import argparse
 import numpy as np
+from eval import DeterministicEvaluator
 from train import train
 
 def print_args(args, file):
@@ -65,7 +66,6 @@ if __name__ == '__main__':
 	Nips paper: https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf
 	'''
 	parser.add_argument("--nature", type=bool, default=True)
-	parser.add_argument("--use-no-ops", type=bool, default=True)
 	##################################################
 	##             Algorithm parameters             ##
 	##################################################
@@ -179,6 +179,15 @@ if __name__ == '__main__':
 	args_file = open(args.args_output_file, "w")
 	print_args(args, args_file)
 
+	rom = sys.argv[1]
+
+	evaluator = DeterministicEvaluator(args.eval_init_states_file,
+		args.cap_eval_episodes,
+		args.eval_max_steps,
+		args.act_repeat,
+		args.hist_len,
+		sys.argv[1])
+
 	train(training_frames=args.training_frames,
 		minibatch_size=args.minibatch_size,
 		replay_capacity=args.replay_capacity, 
@@ -192,4 +201,9 @@ if __name__ == '__main__':
 		fin_exp=args.final_exploration_frame,
 		replay_start_size=args.replay_start_size, 
 		no_op_max=args.no_op_max,
-		ale_seed=args.ale_seed)
+		death_ends_episode=args.death_ends_episode,
+		ale_seed=args.ale_seed,
+		eval_freq=args.eval_freq,
+		checkpoint_frequency=args.checkpoint_frequency,
+		rnd_no_op=RNDNO_OP,
+		evaluator=evaluator)
