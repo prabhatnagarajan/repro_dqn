@@ -12,6 +12,8 @@ def print_args(args, file):
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 
+	parser.add_argument("--rom", type=str, required=True)
+
 	##################################################
 	##            Determinism parameters            ##
 	##################################################
@@ -179,16 +181,19 @@ if __name__ == '__main__':
 	args_file = open(args.args_output_file, "w")
 	print_args(args, args_file)
 
-	rom = sys.argv[1]
-
 	evaluator = DeterministicEvaluator(args.eval_init_states_file,
 		args.cap_eval_episodes,
 		args.eval_max_steps,
 		args.act_repeat,
 		args.hist_len,
-		sys.argv[1])
+		args.rom,
+		args.ale_seed,
+		args.repeat_action_probability)
 
 	train(training_frames=args.training_frames,
+		learning_rate=args.learning_rate,
+		alpha=args.alpha,
+		min_squared_gradient=args.min_squared_gradient,
 		minibatch_size=args.minibatch_size,
 		replay_capacity=args.replay_capacity, 
 		hist_len=args.hist_len,
@@ -204,6 +209,10 @@ if __name__ == '__main__':
 		death_ends_episode=args.death_ends_episode,
 		ale_seed=args.ale_seed,
 		eval_freq=args.eval_freq,
+		nature=args.nature,
 		checkpoint_frequency=args.checkpoint_frequency,
+		checkpoint_dir=args.checkpoint_dir,
 		rnd_no_op=RNDNO_OP,
+		rnd_exp=RNDEXP,
+		rom=args.rom,
 		evaluator=evaluator)

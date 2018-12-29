@@ -1,4 +1,3 @@
-import sys
 import os
 from dqn import DQN
 from ale_wrapper import ALEInterfaceWrapper
@@ -11,6 +10,9 @@ from torch.autograd import Variable
 import utils
 
 def train(training_frames,
+		learning_rate,
+		alpha,
+		min_squared_gradient,
 		minibatch_size,
 		replay_capacity, 
 		hist_len,
@@ -26,20 +28,22 @@ def train(training_frames,
 		death_ends_episode,
 		ale_seed,
 		eval_freq,
+		nature,
 		checkpoint_frequency,
+		checkpoint_dir,
 		rnd_no_op,
+		rnd_exp,
+		rom,
 		evaluator):
+
 	#Create ALE object
-	if len(sys.argv) < 2:
-	  print 'Usage:', sys.argv[0], 'rom_file'
-	  sys.exit()  
 	ale = ALEInterfaceWrapper()
 
 	#Set the random seed for the ALE
 	ale.setInt('random_seed', ale_seed)
 
 	# Load the ROM file
-	ale.loadROM(sys.argv[1])
+	ale.loadROM(rom)
 
 	#initialize epsilon
 	epsilon = init_epsilon
@@ -56,13 +60,24 @@ def train(training_frames,
 	'''
 	random_states_memory = []
 	# create DQN agent
-	agent = DQN(ale.getMinimalActionSet().tolist(), epsilon, hist_len, discount, rom_name(sys.argv[1]))
+	agent = DQN(ale.getMinimalActionSet().tolist(),
+				learning_rate,
+				alpha,
+				min_squared_gradient,
+				nature,
+				checkpoint_frequency,
+				checkpoint_dir,
+				epsilon,
+				hist_len,
+				discount,
+				rom_name(rom),
+				rnd_exp)
 	# Initialize replay memory to capacity replay_capacity
 	replay_memory = ReplayMemory(replay_capacity, hist_len)
-	num_frames = 0 #same as time step
+	timestep = 0
 	episode_num = 1
 	# Main training loop
-	while num_frames < training_frames:
+	while timestep < training_frames:
 		# create a state variable of size hist_len
 		state = State(hist_len)
 		preprocessor = Preprocessor()
@@ -74,8 +89,8 @@ def train(training_frames,
 		episode_done = False
 		# episode loop
 		while not episode_done:
-			if num_frames % checkpoint_frequency == 0:
-				epoch = num_frames/checkpoint_frequency
+			if timestep % checkpoint_frequency == 0:
+				epoch = timestep/checkpoint_frequency
 				agent.checkpoint_network(epoch)
 
 			action = agent.get_action(state.get_state())
@@ -103,40 +118,40 @@ def train(training_frames,
 			Training. We only train once buffer has filled to 
 			size=replay_start_size
 			'''
-			if (num_frames > replay_start_size):
+			if (timestep > replay_start_size):
 				# not core to the algorithm, set aside 500 early states.
 				if len(random_states_memory) == 0:
 					random_states_memory = replay_memory.sample_minibatch(500)
-					evaluate(ale, agent, no_op_max, hist_len, act_rpt, 0, random_states_memory)
+					evaluator.evaluate(agent, 0)
 				# anneal epsilon.
 				epsilon = max(epsilon - epsilon_delta, fin_epsilon)
 				agent.set_epsilon(epsilon)
-				if num_frames % eval_freq == 0:
-					evaluate(ale, agent, no_op_max, hist_len, act_rpt, num_frames, random_states_memory)
-				if num_frames % upd_freq == 0:
+				if timestep % eval_freq == 0:
+					evaluator.evaluate(agent, timestep/eval_freq)
+				if timestep % upd_freq == 0:
 					agent.train(replay_memory, minibatch_size) 
-			num_frames = num_frames + 1
+			timestep = timestep + 1
 			'''
 			Inconsistency in Deepmind code versus Paper. In code they update target
 			network every tgt_update_freq actions. In the the paper they say to do
 			it every tgt_update_freq parameter updates.
 			'''
-			if num_frames % tgt_update_freq == 1:
+			if timestep % tgt_update_freq == 1:
 				print "Copying Network..."
 				agent.copy_network()
 				print "Done Copying."
 		   
 
-		log(episode_num, total_reward, num_frames)
+		log(episode_num, total_reward, timestep)
 		# if game is not over, then continue with new life
 		if ale.game_over():
 			ale.reset_game()
 		episode_num = episode_num + 1
 
-	if num_frames == training_frames:
-		evaluate(ale, agent, no_op_max, hist_len, act_rpt, num_frames, random_states_memory)
+	if timestep == training_frames:
+		evaluate(ale, agent, no_op_max, hist_len, act_rpt, timestep, random_states_memory)
 		agent.checkpoint_network(training/checkpoint_frequency)
-	print "Number " + str(num_frames)
+	print "Number " + str(timestep)
 
 def log(episode_num, reward, frames):
 	print ""
@@ -147,11 +162,11 @@ def log(episode_num, reward, frames):
 	print "-------------------------------------------------------"
 	print ""
 
-def log_eval(num_episodes, episodic_rewards, total_reward, num_frames, avg_max_q):
+def log_eval(num_episodes, episodic_rewards, total_reward, timestep, avg_max_q):
 	print ""
 	print "Evaluation:"
 	print "-------------------------------------------------------"
-	print "Epoch Number: " + str(int(num_frames/eval_freq))
+	print "Epoch Number: " + str(int(timestep/eval_freq))
 	print "Average Maximum Q-value: " + str(avg_max_q)
 	print "Number of Episodes: " + str(num_episodes)
 	print "Total Reward: " + str(total_reward)

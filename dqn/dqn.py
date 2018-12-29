@@ -11,21 +11,33 @@ from torch.autograd import Variable
 import sys
 
 class DQN:
-	def __init__(self, min_action_set, epsilon, hist_len, discount, rom):
+	def __init__(self, min_action_set,
+				learning_rate,
+				alpha,
+				min_squared_gradient,
+				nature,
+				checkpoint_frequency,
+				checkpoint_dir,
+				epsilon,
+				hist_len,
+				discount,
+				rom,
+				rndexp):
 		self.minimal_action_set = min_action_set
 		self.epsilon = epsilon
 		self.discount = discount
-		self.chkpt_freq = CHECKPOINT_FREQUENCY
-		self.prediction_net = NatureNet(len(self.minimal_action_set)) if NATURE else NipsNet(len(self.minimal_action_set))
-		self.target_net = NatureNet(len(self.minimal_action_set)) if NATURE else NipsNet(len(self.minimal_action_set))
+		self.chkpt_freq = checkpoint_frequency
+		self.prediction_net = NatureNet(len(self.minimal_action_set)) if nature else NipsNet(len(self.minimal_action_set))
+		self.target_net = NatureNet(len(self.minimal_action_set)) if nature else NipsNet(len(self.minimal_action_set))
 		if torch.cuda.is_available():
 			print "Initializing Cuda Nets..."
 			self.prediction_net.cuda()
 			self.target_net.cuda()
 		self.optimizer = optim.RMSprop(self.prediction_net.parameters(),
-		lr=LEARNING_RATE, alpha=ALPHA, eps=MIN_SQUARED_GRADIENT)
+		lr=learning_rate, alpha=alpha, eps=min_squared_gradient)
 		self.rom = rom      
-		self.checkpoint_directory = CHECKPOINT_DIR + "/" + rom
+		self.checkpoint_directory = checkpoint_dir + "/" + rom
+		self.rndexp
 
 		#Copy the target network to begin with
 		self.copy_network()
@@ -38,7 +50,7 @@ class DQN:
 	1 - epsilon, the agent chooses the action with
 	the maximal Q-value, argmax_{a}Q(s,a)
 	'''
-	def eGreedy_action(self, state, epsilon, random_state=RNDEXP):
+	def eGreedy_action(self, state, epsilon, random_state=self.rndexp):
 		rand = random_state.uniform(0,1)
 		if (rand < epsilon):
 			index = random_state.randint(len(self.minimal_action_set))

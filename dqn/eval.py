@@ -23,13 +23,16 @@ def perform_action_sweep(ale, preprocessor, state):
 class DeterministicEvaluator:
 
 	def __init__(self, eval_file, cap_eval_episodes, eval_max_steps,
-				action_repeat, hist_len, rom):
+				action_repeat, hist_len, rom, ale_seed, action_repeat_prob):
 		self.eval_file = eval_file
 		self.sequences = self.get_states(self.eval_file)
 		self.cap_eval_episodes = cap_eval_episodes
 		self.eval_max_steps = eval_max_steps
 		self.action_repeat = action_repeat
 		self.hist_len = hist_len
+		self.rom = rom
+		self.ale_seed = ale_seed
+		self.action_repeat_prob = action_repeat_prob
 
 	def get_states(eval_file):
 		sequences = []
@@ -40,6 +43,10 @@ class DeterministicEvaluator:
 			sequences.append(seq)
 		assert len(sequences) == 100
 		return sequences
+
+	def evaluate(self, agent, epoch):
+		ale = self.setup_eval_env(self.ale_seed, action_repeat_prob, self.rom)
+		self.eval_greedy(ale, agent, self.sequences, epoch)
 
 	def setup_eval_env(self, ale_seed, action_repeat_prob, rom):
 		ale = ALEInterfaceWrapper()
@@ -53,6 +60,7 @@ class DeterministicEvaluator:
 		ale.setFloat('repeat_action_probability', action_repeat_prob)
 		# Load the ROM file
 		ale.loadROM(rom)
+		return ale
 
 	def eval_greedy(self, ale, agent, sequences, epoch):
 		sequences = self.sequences()
