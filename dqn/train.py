@@ -1,12 +1,9 @@
 import os
 from dqn import DQN
 from ale_wrapper import ALEInterfaceWrapper
-from collections import deque
-from collections import namedtuple
 from preprocess import Preprocessor
 import numpy as np
 from replaybuffer import *
-from torch.autograd import Variable
 import utils
 
 def train(training_frames,

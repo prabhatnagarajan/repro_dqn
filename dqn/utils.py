@@ -1,5 +1,3 @@
-from constants import *
-import numpy as np
 import os.path
 import torch
 
@@ -15,21 +13,6 @@ def save_checkpoint(state, epoch, checkpoint_dir):
 
 def checkpoint_exists(checkpoint_dir, epoch):
 	return os.path.isfile(checkpoint_dir+'/epoch'+ str(epoch) + '.pth.tar')
-
-def load_checkpoint(model, checkpoint_dir):
-	print "Attempting to load checkpointed weights..."
-	#load the latest epoch's weights
-	epoch = TRAINING_FRAMES/CHECKPOINT_FREQUENCY
-	while epoch > 0:
-		if checkpoint_exists(checkpoint_dir, epoch):
-			break
-		epoch = epoch - 1
-	# If no checkpoints exists
-	if epoch <= 0:
-		print "Could not load any checkpoints... None exist."
-		return
-	#otherwise continue and try to load weights
-	load_epoch_checkpoint(model, checkpoint_dir, epoch)
 
 def get_checkpoint(checkpoint_dir, epoch):
 	resume_weights = checkpoint_dir + '/epoch' + str(epoch) + '.pth.tar'

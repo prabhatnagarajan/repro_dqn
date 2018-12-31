@@ -1,7 +1,5 @@
-from pdb import set_trace
 import numpy as np
 import os
-import constants
 import utils
 from cnn import NatureNet, NipsNet
 import torch

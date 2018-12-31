@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from cnn import NatureNet, NipsNet
-import os
 import numpy as np
 import utils
 import copy
@@ -8,7 +7,6 @@ import torch.nn as nn
 import torch
 import torch.optim as optim
 from torch.autograd import Variable
-import sys
 
 class DQN:
 	def __init__(self, min_action_set,
@@ -41,7 +39,6 @@ class DQN:
 
 		#Copy the target network to begin with
 		self.copy_network()
-		utils.load_checkpoint(self.prediction_net, self.checkpoint_directory)
 
 	'''
 	Implements epsilon-Greedy action selection

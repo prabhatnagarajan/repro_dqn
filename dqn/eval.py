@@ -1,16 +1,7 @@
 from ale_wrapper import ALEInterfaceWrapper
-import os
-import sys
 from preprocess import Preprocessor
 from replaybuffer import *
-from dqn import DQN
-from replaybuffer import *
-from torch.autograd import Variable
-import utils
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import ast
 
 def perform_action_sweep(ale, preprocessor, state):

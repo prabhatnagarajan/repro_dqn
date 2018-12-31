@@ -1,5 +1,4 @@
 from collections import namedtuple
-from constants import *
 import numpy as np
 
 Experience = namedtuple('Experience', 'state action reward new_state game_over') 
