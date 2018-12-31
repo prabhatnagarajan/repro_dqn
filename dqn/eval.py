@@ -24,7 +24,7 @@ class DeterministicEvaluator:
 
 	def __init__(self, eval_file, cap_eval_episodes, eval_max_steps,
 				action_repeat, hist_len, rom, ale_seed, action_repeat_prob,
-				self.eval_output_file):
+				eval_output_file):
 		self.eval_file = eval_file
 		self.sequences = self.get_states(self.eval_file)
 		self.cap_eval_episodes = cap_eval_episodes
@@ -34,6 +34,7 @@ class DeterministicEvaluator:
 		self.rom = rom
 		self.ale_seed = ale_seed
 		self.action_repeat_prob = action_repeat_prob
+		self.eval_output_file = eval_output_file
 
 	def get_states(self, eval_file):
 		sequences = []
