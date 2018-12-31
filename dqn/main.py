@@ -142,13 +142,13 @@ if __name__ == '__main__':
 	'''
 	CHECKPOINT_DIR - directory to store the network checkpoints for reloading
 	ARGS_OUTPUT_FILE - file to output the arguments from this file!
-	EVAL_ARGS_OUTPUT_FILE - file output the evaluations to
+	EVAL_OUTPUT_FILE - file output the evaluations to
 	'''
 	parser.add_argument("--checkpoint-dir", type=str,
 						default="/home/ubuntu/breakoutresults/checkpoints")
 	parser.add_argument("--args-output-file", type=str,
 						default="/home/ubuntu/breakoutresults/args.txt")
-	parser.add_argument("--eval-args-output-file", type=str,
+	parser.add_argument("--eval-output-file", type=str,
 						default="/home/ubuntu/breakoutresults/evalargs.txt")
 	##################################################
 	##            Weight storage Parameters         ##
@@ -188,7 +188,8 @@ if __name__ == '__main__':
 		args.hist_len,
 		args.rom,
 		args.ale_seed,
-		args.repeat_action_probability)
+		args.repeat_action_probability,
+		args.eval_output_file)
 
 	train(training_frames=args.training_frames,
 		learning_rate=args.learning_rate,
