@@ -34,7 +34,7 @@ class DeterministicEvaluator:
 		self.rom = rom
 		self.ale_seed = ale_seed
 		self.action_repeat_prob = action_repeat_prob
-		self.eval_output_file = eval_output_file
+		self.eval_output_file = open(eval_output_file, "w")
 
 	def get_states(self, eval_file):
 		sequences = []
@@ -75,7 +75,6 @@ class DeterministicEvaluator:
 			state = State(self.hist_len)
 			episode_frames = 0
 			episode_reward = 0
-			print "Sequence is " + str(sequence)
 			for i in range(len(sequence)):
 				ale.act(sequence[i])
 				preprocessor.add(ale.getScreenRGB())
@@ -97,32 +96,19 @@ class DeterministicEvaluator:
 				if ale.lives() < lives:
 					perform_action_sweep(ale, preprocessor, state)
 					lives = ale.lives()
-			print "Episode " + str(episode_num) + " reward is " + str(episode_reward)
+			self.eval_output_file.write("Episode " + str(episode_num) + " reward is " + str(episode_reward) + "\n")
 			episode_rewards.append(episode_reward)
 			episode_num += 1
 
 		avg_reward = float(sum(episode_rewards))/float(len(sequences))
-		print ""
-		print "Greedy Evaluation:"
-		print "-------------------------------------------------------"
-		print "(Greedy)Epoch Number: " + str(epoch)
-		print "(Greedy)Average Reward: " + str(avg_reward)
-		print "-------------------------------------------------------"
-		print ""
+		self.eval_output_file.write("\n")
+		self.eval_output_file.write("Greedy Evaluation:\n")
+		self.eval_output_file.write("-------------------------------------------------------\n")
+		self.eval_output_file.write("(Greedy)Epoch Number: " + str(epoch) + "\n")
+		self.eval_output_file.write("(Greedy)Average Reward: " + str(avg_reward) + "\n")
+		self.eval_output_file.write("-------------------------------------------------------\n")
+		self.eval_output_file.write("\n")
 		return avg_reward
-
-def log_eval(num_episodes, episodic_rewards, total_reward, epoch):
-	print ""
-	print "Evaluation:"
-	print "-------------------------------------------------------"
-	print "(Score)Epoch Number: " + str(epoch)
-	print "(Score)Number of Episodes: " + str(num_episodes)
-	print "(Score)Total Reward: " + str(total_reward)
-	print "(Score)Standard Deviation: " + str(np.std(episodic_rewards))
-	print "(Score)Mean Episodic Reward: " + str(np.mean(episodic_rewards))
-	print "(Score)Rewards: " + str(episodic_rewards)
-	print "-------------------------------------------------------"
-	print ""
 
 class DeepmindEvaluator:
 	def __init__(self):
