@@ -28,13 +28,16 @@ def train(training_frames,
 		nature,
 		checkpoint_frequency,
 		checkpoint_dir,
+		repeat_action_probability,
 		rnd_no_op,
 		rnd_exp,
+		rnd_act_repeat,
+		rnd_buffer_sample,
 		rom,
 		evaluator):
 
 	#Create ALE object
-	ale = ALEInterfaceWrapper()
+	ale = ALEInterfaceWrapper(repeat_action_probability, rnd_act_repeat)
 
 	#Set the random seed for the ALE
 	ale.setInt('random_seed', ale_seed)
@@ -62,7 +65,8 @@ def train(training_frames,
 				hist_len,
 				discount,
 				rom_name(rom),
-				rnd_exp)
+				rnd_exp,
+				rnd_buffer_sample)
 	# Initial evaluation
 	evaluator.evaluate(agent, 0)
 	# Initialize replay memory to capacity replay_capacity

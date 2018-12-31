@@ -213,7 +213,10 @@ if __name__ == '__main__':
 		nature=args.nature,
 		checkpoint_frequency=args.checkpoint_frequency,
 		checkpoint_dir=args.checkpoint_dir,
+		repeat_action_probability=args.repeat_action_probability,
 		rnd_no_op=RNDNO_OP,
 		rnd_exp=RNDEXP,
+		rnd_act_repeat=RND_ACTREPEAT,
+		rnd_buffer_sample=RND_MEMSAMPLE,
 		rom=args.rom,
 		evaluator=evaluator)

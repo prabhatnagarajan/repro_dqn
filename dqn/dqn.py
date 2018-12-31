@@ -20,7 +20,8 @@ class DQN:
 				hist_len,
 				discount,
 				rom,
-				rndexp):
+				rndexp,
+				rnd_buffer_sample):
 		self.minimal_action_set = min_action_set
 		self.epsilon = epsilon
 		self.discount = discount
@@ -36,6 +37,7 @@ class DQN:
 		self.rom = rom      
 		self.checkpoint_directory = checkpoint_dir + "/" + rom
 		self.rndexp = rndexp
+		self.rnd_buffer_sample = rnd_buffer_sample
 
 		#Copy the target network to begin with
 		self.copy_network()
@@ -130,7 +132,7 @@ class DQN:
 	'''
 	def train(self, replay_memory, minibatch_size):
 		# sample a minibatch of transitions
-		sample = replay_memory.sample_minibatch(minibatch_size)
+		sample = replay_memory.sample_minibatch(minibatch_size, self.rnd_buffer_sample)
 		# compute the target values for the minibatch
 		labels = self.compute_labels(sample, minibatch_size)
 		state = Variable(utils.float_tensor(np.stack([np.squeeze(x.state) for x in sample])))

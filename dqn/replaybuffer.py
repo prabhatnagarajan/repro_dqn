@@ -43,7 +43,7 @@ class ReplayMemory:
 		else:
 			return self.s[[(index - i) % self.size for i in reversed(range(hist_len))],...]
 
-	def sample_minibatch(self, minibatch_size, random_state=RND_MEMSAMPLE):
+	def sample_minibatch(self, minibatch_size, random_state):
 		indices = []
 		while len(indices) < minibatch_size:
 			rnd_index = random_state.randint(self.hist_len, self.size - 1)

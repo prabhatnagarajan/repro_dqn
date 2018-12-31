@@ -3,7 +3,7 @@ from constants import *
 from copy import deepcopy
 
 class ALEInterfaceWrapper:
-	def __init__(self, repeat_action_probability=REPEAT_ACTION_PROBABILITY, rng=RND_ACTREPEAT):
+	def __init__(self, repeat_action_probability, rng):
 		self.internal_action_repeat_prob = repeat_action_probability
 		print "repeat_action_probability is " + str(repeat_action_probability)
 		self.prev_action = 0
