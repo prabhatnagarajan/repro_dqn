@@ -149,7 +149,7 @@ def train(training_frames,
 		episode_num = episode_num + 1
 
 	if timestep == training_frames:
-		evaluate(ale, agent, no_op_max, hist_len, act_rpt, timestep, random_states_memory)
+		evaluator.evaluate(ale, agent, no_op_max, hist_len, act_rpt, timestep, random_states_memory)
 		agent.checkpoint_network(training/checkpoint_frequency)
 	print "Number " + str(timestep)
 
@@ -159,23 +159,6 @@ def log(episode_num, reward, frames):
 	print "Episodes: " + str(episode_num)
 	print "Reward: " + str(reward)
 	print "Frames (excluding frame skip): " + str(frames)
-	print "-------------------------------------------------------"
-	print ""
-
-def log_eval(num_episodes, episodic_rewards, total_reward, timestep, avg_max_q):
-	print ""
-	print "Evaluation:"
-	print "-------------------------------------------------------"
-	print "Epoch Number: " + str(int(timestep/eval_freq))
-	print "Average Maximum Q-value: " + str(avg_max_q)
-	print "Number of Episodes: " + str(num_episodes)
-	print "Total Reward: " + str(total_reward)
-	mean = float(total_reward)/float(max(1, num_episodes))
-	print "Mean Reward: " + str(mean)
-	if num_episodes > 0:
-		print "Standard Deviation: " + str(np.std(episodic_rewards))
-		print "Mean Episodic Reward: " + str(np.mean(episodic_rewards))
-		print "Rewards: " + str(episodic_rewards)
 	print "-------------------------------------------------------"
 	print ""
 

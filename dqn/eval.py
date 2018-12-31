@@ -23,7 +23,8 @@ def perform_action_sweep(ale, preprocessor, state):
 class DeterministicEvaluator:
 
 	def __init__(self, eval_file, cap_eval_episodes, eval_max_steps,
-				action_repeat, hist_len, rom, ale_seed, action_repeat_prob):
+				action_repeat, hist_len, rom, ale_seed, action_repeat_prob,
+				self.eval_output_file):
 		self.eval_file = eval_file
 		self.sequences = self.get_states(self.eval_file)
 		self.cap_eval_episodes = cap_eval_episodes
@@ -34,7 +35,7 @@ class DeterministicEvaluator:
 		self.ale_seed = ale_seed
 		self.action_repeat_prob = action_repeat_prob
 
-	def get_states(eval_file):
+	def get_states(self, eval_file):
 		sequences = []
 		input_file = open(eval_file)
 		lines = input_file.readlines()
@@ -45,8 +46,8 @@ class DeterministicEvaluator:
 		return sequences
 
 	def evaluate(self, agent, epoch):
-		ale = self.setup_eval_env(self.ale_seed, action_repeat_prob, self.rom)
-		self.eval_greedy(ale, agent, self.sequences, epoch)
+		ale = self.setup_eval_env(self.ale_seed, self.action_repeat_prob, self.rom)
+		self.eval_greedy(ale, agent, epoch)
 
 	def setup_eval_env(self, ale_seed, action_repeat_prob, rom):
 		ale = ALEInterfaceWrapper()
@@ -62,8 +63,8 @@ class DeterministicEvaluator:
 		ale.loadROM(rom)
 		return ale
 
-	def eval_greedy(self, ale, agent, sequences, epoch):
-		sequences = self.sequences()
+	def eval_greedy(self, ale, agent, epoch):
+		sequences = self.sequences
 		ale.reset_action_seed()
 		episode_rewards = []
 		episode_num = 0
@@ -82,7 +83,7 @@ class DeterministicEvaluator:
 			count = 0
 			lives = ale.lives()
 			while not (ale.game_over() or (self.cap_eval_episodes and episode_frames > self.eval_max_steps)):
-				action = agent.eGreedy_action(state.get_state(), 0.0)
+				action = agent.eGreedy_action(state.get_state(), 0.0, np.random.RandomState(4))
 				reward = 0
 				for i in range(self.action_repeat):
 					reward += ale.act(action)

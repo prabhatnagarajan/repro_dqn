@@ -5,12 +5,12 @@ import constants
 import utils
 from cnn import NatureNet, NipsNet
 import torch
+import argparse
 
 
 CHECKPOINT_FOLDERS = [
 "/home/ubuntu/breakoutresults/checkpoints/breakout",
 "/home/ubuntu/breakoutresults/checkpoints/breakout"]
-NATURE=constants.NATURE
 
 def checkpoints_all_exist(epoch):
 	for checkpoint_dir in CHECKPOINT_FOLDERS:
@@ -18,7 +18,36 @@ def checkpoints_all_exist(epoch):
 			return False
 	return True
 
+def log_comparison(nature,
+					conv1,
+					conv2,
+					conv3,
+					fc,
+					output,
+					bias1,
+					bias2,
+					bias3,
+					fc_bias,
+					output_bias):
+	print "Conv1 weights are same: " + str(conv1)
+	print "Conv2 weights are same: " + str(conv2)
+	if nature:
+		print "Conv3 weights are same: " + str(conv3)
+	print "Bias1 weights are same: " + str(bias1)
+	print "Bias2 weights are same: " + str(bias2)
+	if nature:
+		print "Bias3 weights are same: " + str(bias3)
+	print "FC1 weights are same: " + str(fc)
+	print "FC1 bias weights are same: " + str(fc_bias)
+	print "Output weights are same: " + str(output)
+	print "Output bias weights are same: " + str(output_bias)
+	print "-------------------------------------------------------------------"
+
 if __name__ == '__main__':
+	parser = argparse.ArgumentParser()
+	parser.add_argument("--nature", default=True, type=bool)
+	args = parser.parse_args()
+
 	epoch=0
 	everywhere_all_the_time = True
 	while checkpoints_all_exist(epoch):
@@ -39,7 +68,7 @@ if __name__ == '__main__':
 		conv2_bias = True
 		fc1_bias = True
 		output_bias = True
-		if NATURE:
+		if args.nature:
 			conv3 = True
 			conv3_bias = True
 		print "Comparing nets..."
@@ -54,11 +83,13 @@ if __name__ == '__main__':
 			conv2_bias = conv2_bias and torch.equal(net_a['conv2.bias'], net_b['conv2.bias'])
 			fc1_bias = fc1_bias and torch.equal(net_a['fc1.bias'], net_b['fc1.bias'])
 			output_bias = output_bias and torch.equal(net_a['output.bias'], net_b['output.bias'])
-			if NATURE:
+			if args.nature:
 				conv3 = conv3 and torch.equal(net_a['conv3.weight'], net_b['conv3.weight'])
 				conv3_bias = conv3_bias and torch.equal(net_a['conv3.bias'], net_b['conv3.bias'])
-
-		if NATURE:
+			else:
+				conv3 = None
+				conv3_bias = None
+		if args.nature:
 			everywhere_all_the_time = everywhere_all_the_time and conv1 and conv2 and conv3 \
 			and conv1_bias and conv2_bias and conv3_bias and fc1 and fc1_bias \
 			and output and output_bias
@@ -66,19 +97,17 @@ if __name__ == '__main__':
 			everywhere_all_the_time = everywhere_all_the_time and conv1 and conv2 \
 			and conv1_bias and conv2_bias and fc1 and fc1_bias and output and output_bias			
 
-		print "Conv1 weights are same: " + str(conv1)
-		print "Conv2 weights are same: " + str(conv2)
-		if NATURE:
-			print "Conv3 weights are same: " + str(conv3)
-		print "Bias1 weights are same: " + str(conv1_bias)
-		print "Bias2 weights are same: " + str(conv2_bias)
-		if NATURE:
-			print "Bias3 weights are same: " + str(conv3_bias)
-		print "FC1 weights are same: " + str(fc1)
-		print "FC1 bias weights are same: " + str(fc1_bias)
-		print "Output weights are same: " + str(output)
-		print "Output bias weights are same: " + str(output_bias)
-		print "-------------------------------------------------------------------"
+		log_comparison(args.nature,
+			conv1,
+			conv2,
+			conv3,
+			fc1,
+			output,
+			conv1_bias,
+			conv2_bias,
+			conv3_bias,
+			fc1_bias,
+			output_bias)
 		epoch += 1
 	if epoch == 0:
 		print "No networks to compare..."

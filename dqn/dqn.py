@@ -37,7 +37,7 @@ class DQN:
 		lr=learning_rate, alpha=alpha, eps=min_squared_gradient)
 		self.rom = rom      
 		self.checkpoint_directory = checkpoint_dir + "/" + rom
-		self.rndexp
+		self.rndexp = rndexp
 
 		#Copy the target network to begin with
 		self.copy_network()
@@ -50,7 +50,7 @@ class DQN:
 	1 - epsilon, the agent chooses the action with
 	the maximal Q-value, argmax_{a}Q(s,a)
 	'''
-	def eGreedy_action(self, state, epsilon, random_state=self.rndexp):
+	def eGreedy_action(self, state, epsilon, random_state):
 		rand = random_state.uniform(0,1)
 		if (rand < epsilon):
 			index = random_state.randint(len(self.minimal_action_set))
@@ -62,7 +62,7 @@ class DQN:
 			return self.minimal_action_set[np.argmax(q_vals)]
 
 	def get_action(self, state):
-		return self.eGreedy_action(state, self.epsilon)
+		return self.eGreedy_action(state, self.epsilon, self.rndexp)
 
 	def set_epsilon(self, epsilon):
 		self.epsilon = epsilon
