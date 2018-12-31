@@ -108,6 +108,7 @@ class DeterministicEvaluator:
 		self.eval_output_file.write("(Greedy)Average Reward: " + str(avg_reward) + "\n")
 		self.eval_output_file.write("-------------------------------------------------------\n")
 		self.eval_output_file.write("\n")
+		self.eval_output_file.flush()
 		return avg_reward
 
 class DeepmindEvaluator:

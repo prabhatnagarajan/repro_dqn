@@ -53,12 +53,6 @@ def train(training_frames,
 	print "Minimal Action set is:"
 	print ale.getMinimalActionSet()
 
-
-	''' 
-	store random states for Q evaluation (not core to the algorithm).
-	Can safely ignore.
-	'''
-	random_states_memory = []
 	# create DQN agent
 	agent = DQN(ale.getMinimalActionSet().tolist(),
 				learning_rate,
@@ -72,6 +66,8 @@ def train(training_frames,
 				discount,
 				rom_name(rom),
 				rnd_exp)
+	# Initial evaluation
+	evaluator.evaluate(agent, 0)
 	# Initialize replay memory to capacity replay_capacity
 	replay_memory = ReplayMemory(replay_capacity, hist_len)
 	timestep = 0
@@ -119,10 +115,6 @@ def train(training_frames,
 			size=replay_start_size
 			'''
 			if (timestep > replay_start_size):
-				# not core to the algorithm, set aside 500 early states.
-				if len(random_states_memory) == 0:
-					random_states_memory = replay_memory.sample_minibatch(500)
-					evaluator.evaluate(agent, 0)
 				# anneal epsilon.
 				epsilon = max(epsilon - epsilon_delta, fin_epsilon)
 				agent.set_epsilon(epsilon)
@@ -149,7 +141,7 @@ def train(training_frames,
 		episode_num = episode_num + 1
 
 	if timestep == training_frames:
-		evaluator.evaluate(ale, agent, no_op_max, hist_len, act_rpt, timestep, random_states_memory)
+		evaluator.evaluate(agent, training_frames/eval_freq)
 		agent.checkpoint_network(training/checkpoint_frequency)
 	print "Number " + str(timestep)
 
