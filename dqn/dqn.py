@@ -64,7 +64,7 @@ class DQN:
 	def set_epsilon(self, epsilon):
 		self.epsilon = epsilon
 
-	#potentially optimizable
+	# potentially optimizable
 	def compute_labels(self, sample, minibatch_size):
 		label = Variable(utils.float_tensor(minibatch_size))
 		for i in range(minibatch_size):

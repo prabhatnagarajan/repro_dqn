@@ -49,14 +49,14 @@ class ReplayMemory:
 		indices = []
 		while len(indices) < minibatch_size:
 			rnd_index = random_state.randint(self.hist_len, self.size - 1)
-			#check if there's buffer wraparound
+			# check if there's buffer wraparound
 			if rnd_index >= self.insertLoc and rnd_index - self.hist_len < self.insertLoc:
 				continue
-			#skip sequences that overlap with episode ends...
+			# skip sequences that overlap with episode ends...
 			if self.terminals[(rnd_index - self.hist_len):rnd_index].any():
 				continue
-			#Skip sequences where a new episode starts (but not terminal)
-			if all(t < t2 for t, t2 in zip(self.episode_time[(rnd_index - self.hist_len):rnd_index], 
+			# Skip sequences where a new episode starts (but not terminal)
+			if not all(t < t2 for t, t2 in zip(self.episode_time[(rnd_index - self.hist_len):rnd_index], 
 										self.episode_time[(rnd_index - self.hist_len + 1):rnd_index])):
 				continue
 			indices.append(rnd_index)
