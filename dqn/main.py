@@ -8,6 +8,7 @@ def print_args(args, file):
 	arguments = vars(args)
 	for arg in arguments:
 		file.write(str(arg) + ":" + str(arguments[arg]) + "\n")
+	file.flush()
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
