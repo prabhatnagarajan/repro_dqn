@@ -21,15 +21,17 @@ class ReplayMemory:
 		self.a = np.empty(replay_capacity, dtype=np.uint8)
 		self.r = np.empty(replay_capacity)
 		self.terminals = np.empty(replay_capacity, dtype=np.bool)
+		self.episode_time = np.empty(replay_capacity, dtype=np.uint8)
 		self.size = 0
 		self.insertLoc = 0
 
-	def add_item(self, frame, action, reward, episode_done):
+	def add_item(self, frame, action, reward, episode_done, episode_timestep):
 		# input a_t, r_t, f_t+1, episode done at t+1
 		self.s[self.insertLoc, ...] = frame
 		self.a[self.insertLoc] = action
 		self.r[self.insertLoc] = reward
 		self.terminals[self.insertLoc] = episode_done
+		self.episode_timestep[self.insertLoc] = episode_timestep
 		self.size = max(self.size, self.insertLoc + 1)
 		self.insertLoc = (self.insertLoc + 1) % self.replay_capacity
 
@@ -52,6 +54,10 @@ class ReplayMemory:
 				continue
 			#skip sequences that overlap with episode ends...
 			if self.terminals[(rnd_index - self.hist_len):rnd_index].any():
+				continue
+			#Skip sequences where a new episode starts (but not terminal)
+			all(t < t2 for t, t2 in zip(self.episode_time[(rnd_index - self.hist_len):rnd_index], 
+										self.episode_time[(rnd_index - self.hist_len + 1):rnd_index])):
 				continue
 			indices.append(rnd_index)
 		minibatch = [Experience(state=np.expand_dims(self.get_state(index - 1).astype(np.float32)/255.0, axis=0), 

@@ -84,6 +84,7 @@ def train(training_frames,
 		total_reward = 0
 		lives = ale.lives()
 		episode_done = False
+		time_since_term = 0
 		# episode loop
 		while not episode_done:
 			if timestep % checkpoint_frequency == 0:
@@ -109,7 +110,7 @@ def train(training_frames,
 
 			episode_done = ale.game_over() or (ale.lives() < lives and DEATH_ENDS_EPISODE)
 			#store transition
-			replay_memory.add_item(img, action, reward, episode_done)
+			replay_memory.add_item(img, action, reward, episode_done, time_since_term)
 
 			'''
 			Training. We only train once buffer has filled to 
@@ -121,9 +122,14 @@ def train(training_frames,
 				agent.set_epsilon(epsilon)
 				if timestep % eval_freq == 0:
 					evaluator.evaluate(agent, timestep/eval_freq)
+					ale.reset_game()
+					# Break loop and start new episode after eval
+					# Can help prevent getting stuck in episodes
+					episode_done = True
 				if timestep % upd_freq == 0:
 					agent.train(replay_memory, minibatch_size) 
 			timestep = timestep + 1
+			time_since_term += 1
 			'''
 			Inconsistency in Deepmind code versus Paper. In code they update target
 			network every tgt_update_freq actions. In the the paper they say to do
