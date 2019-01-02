@@ -56,7 +56,7 @@ class ReplayMemory:
 			if self.terminals[(rnd_index - self.hist_len):rnd_index].any():
 				continue
 			#Skip sequences where a new episode starts (but not terminal)
-			all(t < t2 for t, t2 in zip(self.episode_time[(rnd_index - self.hist_len):rnd_index], 
+			if all(t < t2 for t, t2 in zip(self.episode_time[(rnd_index - self.hist_len):rnd_index], 
 										self.episode_time[(rnd_index - self.hist_len + 1):rnd_index])):
 				continue
 			indices.append(rnd_index)
