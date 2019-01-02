@@ -1,11 +1,10 @@
 from ale_python_interface import ALEInterface
-from constants import *
 from copy import deepcopy
+import numpy as np
 
 class ALEInterfaceWrapper:
 	def __init__(self, repeat_action_probability, rng):
 		self.internal_action_repeat_prob = repeat_action_probability
-		print "repeat_action_probability is " + str(repeat_action_probability)
 		self.prev_action = 0
 		self.rng_source = rng
 		self.rng = deepcopy(self.rng_source)
@@ -42,6 +41,9 @@ class ALEInterfaceWrapper:
 
 	def reset_action_seed(self):
 		self.rng = deepcopy(self.rng_source)
+
+	def set_action_seed(self, seed):
+		self.rng = np.random.RandomState(seed) 
 
 	def act(self, action):
 		actual_action = action

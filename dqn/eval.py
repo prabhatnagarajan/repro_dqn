@@ -42,7 +42,7 @@ class DeterministicEvaluator:
 		self.eval_greedy(ale, agent, epoch)
 
 	def setup_eval_env(self, ale_seed, action_repeat_prob, rom):
-		ale = ALEInterfaceWrapper()
+		ale = ALEInterfaceWrapper(action_repeat_prob, np.random.RandomState(4))
 		#Set the random seed for the ALE
 
 		ale.setInt('random_seed', ale_seed)
@@ -56,6 +56,8 @@ class DeterministicEvaluator:
 		return ale
 
 	def eval_greedy(self, ale, agent, epoch):
+		if self.action_repeat_prob > 0:
+			return self.eval_greedy_stochastic_env(ale, agent, epoch)
 		sequences = self.sequences
 		ale.reset_action_seed()
 		episode_rewards = []
@@ -71,7 +73,6 @@ class DeterministicEvaluator:
 				preprocessor.add(ale.getScreenRGB())
 				if (i + 1) % self.action_repeat == 0:
 					state.add_frame(preprocessor.preprocess())
-			count = 0
 			lives = ale.lives()
 			while not (ale.game_over() or (self.cap_eval_episodes and episode_frames >= self.eval_max_frames)):
 				# the random state doesn't matter since eps=0.0
@@ -84,7 +85,6 @@ class DeterministicEvaluator:
 				img = preprocessor.preprocess()
 				state.add_frame(img)
 				episode_reward += reward
-				count += 1
 				if ale.lives() < lives:
 					perform_action_sweep(ale, preprocessor, state)
 					lives = ale.lives()
@@ -93,6 +93,44 @@ class DeterministicEvaluator:
 			episode_num += 1
 
 		avg_reward = float(sum(episode_rewards))/float(len(sequences))
+		self.log_eval(avg_reward, epoch)
+		return avg_reward
+
+	def eval_greedy_stochastic_env(self, ale, agent, epoch):
+		self.eval_output_file.write("Performing Stochastic Evaluation...\n")
+		episode_rewards = []
+		for episode_num in range(len(self.sequences)):
+			ale.reset_game()
+			ale.set_action_seed(episode_num)
+			preprocessor = Preprocessor()
+			state = State(self.hist_len)
+			for _ in range(2):
+				preprocessor.add(ale.getScreenRGB())
+			state.add_frame(preprocessor.preprocess())
+			episode_frames = 0
+			episode_reward = 0	
+			lives = ale.lives()	
+			while not (ale.game_over() or (self.cap_eval_episodes and episode_frames > self.eval_max_frames)):
+				action = agent.eGreedy_action(state.get_state(), 0.0)
+				reward = 0
+				for i in range(self.action_repeat):
+					reward += ale.act(action)
+					preprocessor.add(ale.getScreenRGB())
+					episode_frames += 1
+				img = preprocessor.preprocess()
+				state.add_frame(img)
+				episode_reward += reward
+				if ale.lives() < lives:
+					perform_action_sweep(ale, preprocessor, state)
+					lives = ale.lives()
+			self.eval_output_file.write("Episode " + str(episode_num) + " reward is " + str(episode_reward) + "\n")
+			episode_rewards.append(episode_reward)
+			episode_num += 1
+		avg_reward = float(sum(episode_rewards))/float(number_episodes)
+		self.log_eval(avg_reward, epoch)
+		return avg_reward
+
+	def log_eval(self, avg_reward, epoch):
 		self.eval_output_file.write("\n")
 		self.eval_output_file.write("Greedy Evaluation:\n")
 		self.eval_output_file.write("-------------------------------------------------------\n")
@@ -101,8 +139,6 @@ class DeterministicEvaluator:
 		self.eval_output_file.write("-------------------------------------------------------\n")
 		self.eval_output_file.write("\n")
 		self.eval_output_file.flush()
-		return avg_reward
-
 class DeepmindEvaluator:
 	def __init__(self):
 		raise NotImplementError()
