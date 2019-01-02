@@ -9,4 +9,4 @@ python dqn/main.py --rom $ROM \
 --args-output-file $ARGS_OUTPUT_FILE \
 --eval-output-file $EVAL_OUTPUT_FILE \
 --checkpoint-dir $CHECKPOINT_DIR \
---eval-init-states-file $EVAL_STATES_INIT_FILE &>> $STDOUT_FILE
+--eval-init-states-file $EVAL_STATES_INIT_FILE &>> $OUTPUT_FILE
