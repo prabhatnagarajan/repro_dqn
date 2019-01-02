@@ -64,7 +64,6 @@ def train(training_frames,
 				epsilon,
 				hist_len,
 				discount,
-				rom_name(rom),
 				rnd_exp,
 				rnd_buffer_sample)
 	# Initial evaluation
@@ -160,9 +159,6 @@ def log(episode_num, reward, frames):
 	print "Frames (excluding frame skip): " + str(frames)
 	print "-------------------------------------------------------"
 	print ""
-
-def rom_name(path):
-	return os.path.splitext(os.path.basename(path))[0]
 
 if __name__ == '__main__':
 	print_args(False)

@@ -19,7 +19,6 @@ class DQN:
 				epsilon,
 				hist_len,
 				discount,
-				rom,
 				rndexp,
 				rnd_buffer_sample):
 		self.minimal_action_set = min_action_set
@@ -34,8 +33,7 @@ class DQN:
 			self.target_net.cuda()
 		self.optimizer = optim.RMSprop(self.prediction_net.parameters(),
 		lr=learning_rate, alpha=alpha, eps=min_squared_gradient)
-		self.rom = rom      
-		self.checkpoint_directory = checkpoint_dir + "/" + rom
+		self.checkpoint_directory = checkpoint_dir
 		self.rndexp = rndexp
 		self.rnd_buffer_sample = rnd_buffer_sample
 
