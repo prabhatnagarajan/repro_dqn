@@ -31,7 +31,7 @@ class ReplayMemory:
 		self.a[self.insertLoc] = action
 		self.r[self.insertLoc] = reward
 		self.terminals[self.insertLoc] = episode_done
-		self.episode_timestep[self.insertLoc] = episode_timestep
+		self.episode_time[self.insertLoc] = episode_timestep
 		self.size = max(self.size, self.insertLoc + 1)
 		self.insertLoc = (self.insertLoc + 1) % self.replay_capacity
 
