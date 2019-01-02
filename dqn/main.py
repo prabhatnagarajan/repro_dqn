@@ -125,7 +125,7 @@ if __name__ == '__main__':
 	#EVAL_FREQ = 250000 if NATURE else 100000
 	parser.add_argument("--eval-steps", type=int, default=125000)
 	parser.add_argument("--cap-eval-episodes", type=bool, default=True)
-	parser.add_argument("--eval-max-steps", type=int, default=18000)
+	parser.add_argument("--eval-max-frames", type=int, default=18000)
 	parser.add_argument("--eval-episodes", type=int, default=100)
 	parser.add_argument("--eval-batch-seed", type=int, default=123)
 	parser.add_argument("--eval-exp-seed", type=int, default=123)
@@ -183,7 +183,7 @@ if __name__ == '__main__':
 
 	evaluator = DeterministicEvaluator(args.eval_init_states_file,
 		args.cap_eval_episodes,
-		args.eval_max_steps,
+		args.eval_max_frames,
 		args.act_repeat,
 		args.hist_len,
 		args.rom,

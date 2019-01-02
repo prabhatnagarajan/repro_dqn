@@ -13,13 +13,13 @@ def perform_action_sweep(ale, preprocessor, state):
 
 class DeterministicEvaluator:
 
-	def __init__(self, eval_file, cap_eval_episodes, eval_max_steps,
+	def __init__(self, eval_file, cap_eval_episodes, eval_max_frames,
 				action_repeat, hist_len, rom, ale_seed, action_repeat_prob,
 				eval_output_file):
 		self.eval_file = eval_file
 		self.sequences = self.get_states(self.eval_file)
 		self.cap_eval_episodes = cap_eval_episodes
-		self.eval_max_steps = eval_max_steps
+		self.eval_max_frames = eval_max_frames
 		self.action_repeat = action_repeat
 		self.hist_len = hist_len
 		self.rom = rom
@@ -73,7 +73,8 @@ class DeterministicEvaluator:
 					state.add_frame(preprocessor.preprocess())
 			count = 0
 			lives = ale.lives()
-			while not (ale.game_over() or (self.cap_eval_episodes and episode_frames > self.eval_max_steps)):
+			while not (ale.game_over() or (self.cap_eval_episodes and episode_frames >= self.eval_max_frames)):
+				# the random state doesn't matter since eps=0.0
 				action = agent.eGreedy_action(state.get_state(), 0.0, np.random.RandomState(4))
 				reward = 0
 				for i in range(self.action_repeat):
@@ -83,7 +84,7 @@ class DeterministicEvaluator:
 				img = preprocessor.preprocess()
 				state.add_frame(img)
 				episode_reward += reward
-				count+= 1
+				count += 1
 				if ale.lives() < lives:
 					perform_action_sweep(ale, preprocessor, state)
 					lives = ale.lives()
