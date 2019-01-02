@@ -107,7 +107,7 @@ def train(training_frames,
 			img = preprocessor.preprocess()
 			state.add_frame(img)
 
-			episode_done = ale.game_over() or (ale.lives() < lives and DEATH_ENDS_EPISODE)
+			episode_done = ale.game_over() or (ale.lives() < lives and death_ends_episode)
 			#store transition
 			replay_memory.add_item(img, action, reward, episode_done, time_since_term)
 
