@@ -159,7 +159,3 @@ def log(episode_num, reward, frames):
 	print "Frames (excluding frame skip): " + str(frames)
 	print "-------------------------------------------------------"
 	print ""
-
-if __name__ == '__main__':
-	print_args(False)
-	train()
