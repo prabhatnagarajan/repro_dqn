@@ -3,6 +3,7 @@ import argparse
 import numpy as np
 from eval import DeterministicEvaluator
 from train import train
+import os
 
 def print_args(args, file):
 	arguments = vars(args)
@@ -135,7 +136,7 @@ if __name__ == '__main__':
 	parser.add_argument("--eval-q-no-op-seed", type=int, default=123)
 
 	parser.add_argument("--eval-init-states-file", type=str,
-						default="/home/ubuntu/repro_dqn/files/initstates.txt")
+						default="files/initstates.txt")
 
 	##################################################
 	##                   Files                      ##
@@ -145,6 +146,8 @@ if __name__ == '__main__':
 	ARGS_OUTPUT_FILE - file to output the arguments from this file!
 	EVAL_OUTPUT_FILE - file output the evaluations to
 	'''
+	parser.add_argument("output-directory", type=str,
+						default="results")
 	parser.add_argument("--checkpoint-dir", type=str,
 						default="/home/ubuntu/breakoutresults/checkpoints")
 	parser.add_argument("--args-output-file", type=str,
@@ -161,6 +164,12 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 
 	# SETUP
+	if not os.path.exists(args.output_directory):
+		os.makedirs(args.output_directory)
+	checkpoint_dir = os.path.join(args.output_directory, "checkpoints")
+	args_output_file = os.path.join(args.output_directory, "args.txt")
+	eval_output_file = os.path.join(args.output_directory, "evalargs.txt")
+
 	'''
 	Create random number generators for each of exploration,
 	random no-ops, and minibatch sampling, all sources of 
@@ -179,7 +188,7 @@ if __name__ == '__main__':
 	    torch.backends.cudnn.deterministic = args.gpu_determinism
 	else:
 	    print "Not using cuda..."
-	args_file = open(args.args_output_file, "w")
+	args_file = open(args_output_file, "w")
 	print_args(args, args_file)
 
 	evaluator = DeterministicEvaluator(args.eval_init_states_file,
@@ -190,7 +199,7 @@ if __name__ == '__main__':
 		args.rom,
 		args.ale_seed,
 		args.repeat_action_probability,
-		args.eval_output_file)
+		eval_output_file)
 
 	train(training_frames=args.training_frames,
 		learning_rate=args.learning_rate,
@@ -213,7 +222,7 @@ if __name__ == '__main__':
 		eval_freq=args.eval_freq,
 		nature=args.nature,
 		checkpoint_frequency=args.checkpoint_frequency,
-		checkpoint_dir=args.checkpoint_dir,
+		checkpoint_dir=checkpoint_dir,
 		repeat_action_probability=args.repeat_action_probability,
 		rnd_no_op=RNDNO_OP,
 		rnd_exp=RNDEXP,
