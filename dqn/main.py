@@ -167,6 +167,8 @@ if __name__ == '__main__':
 	if not os.path.exists(args.output_directory):
 		os.makedirs(args.output_directory)
 	checkpoint_dir = os.path.join(args.output_directory, "checkpoints")
+	if not os.path.exists(checkpoint_dir):
+		os.makedirs(checkpoint_dir)
 	args_output_file = os.path.join(args.output_directory, "args.txt")
 	eval_output_file = os.path.join(args.output_directory, "evalargs.txt")
 
