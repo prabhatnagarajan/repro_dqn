@@ -146,7 +146,7 @@ if __name__ == '__main__':
 	ARGS_OUTPUT_FILE - file to output the arguments from this file!
 	EVAL_OUTPUT_FILE - file output the evaluations to
 	'''
-	parser.add_argument("output-directory", type=str,
+	parser.add_argument("--output-directory", type=str,
 						default="results")
 	parser.add_argument("--checkpoint-dir", type=str,
 						default="/home/ubuntu/breakoutresults/checkpoints")
