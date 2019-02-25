@@ -170,7 +170,7 @@ if __name__ == '__main__':
 	if not os.path.exists(checkpoint_dir):
 		os.makedirs(checkpoint_dir)
 	args_output_file = os.path.join(args.output_directory, "args.txt")
-	eval_output_file = os.path.join(args.output_directory, "evalargs.txt")
+	eval_output_file = os.path.join(args.output_directory, "evaluation.txt")
 
 	'''
 	Create random number generators for each of exploration,
