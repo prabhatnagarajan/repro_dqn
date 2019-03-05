@@ -153,7 +153,7 @@ if __name__ == '__main__':
 	parser.add_argument("--args-output-file", type=str,
 						default="/home/ubuntu/breakoutresults/args.txt")
 	parser.add_argument("--eval-output-file", type=str,
-						default="/home/ubuntu/breakoutresults/evalargs.txt")
+						default="/home/ubuntu/breakoutresults/evaluation.txt")
 	##################################################
 	##            Weight storage Parameters         ##
 	##################################################
