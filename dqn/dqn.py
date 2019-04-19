@@ -66,23 +66,35 @@ class DQN:
 
 	# potentially optimizable
 	def compute_labels(self, sample, minibatch_size):
-		label = Variable(utils.float_tensor(minibatch_size))
-		for i in range(minibatch_size):
-			if (sample[i].game_over):
-				label[i] = sample[i].reward
-			else:
-				state = Variable(utils.float_tensor(sample[i].new_state))
-				outputs = self.target_net(state)
-				target_q_vals = outputs[len(outputs)-1]
-				label[i] = sample[i].reward + self.discount * torch.max(target_q_vals).data[0]
-		return label
+		# sample is list of namedtuples of the form: state action reward new_state game_over
+		# minibatch_size x 5 matrix
+		batch_sample = np.array(sample)
+		next_states = np.squeeze(np.stack(batch_sample[:, 3]), axis=1)
+		rewards = utils.float_tensor(batch_sample[:, 2])
+		game_not_overs = np.array([not transition.game_over for transition in sample], dtype=np.float32)
+		next_state_vars = Variable(utils.float_tensor(next_states))
+		net_outs = self.target_net(next_state_vars)
+		tgt_q_vals = net_outs[len(net_outs)-1]
+		tgt_vals = tgt_q_vals.max(dim=1)[0].data
+		labels = Variable(utils.float_tensor(rewards + self.discount * tgt_vals * utils.float_tensor(game_not_overs)))
+		return labels
+		# label = Variable(utils.float_tensor(minibatch_size))
+		# for i in range(minibatch_size):
+		# 	if (sample[i].game_over):
+		# 		label[i] = sample[i].reward
+		# 	else:
+		# 		state = Variable(utils.float_tensor(sample[i].new_state))
+		# 		outputs = self.target_net(state)
+		# 		target_q_vals = outputs[len(outputs)-1]
+		# 		label[i] = sample[i].reward + self.discount * torch.max(target_q_vals).data[0]
+		# return label
 
 	def copy_network(self):
 		self.target_net = copy.deepcopy(self.prediction_net)
 
 	'''
 	Args - 
-	outputs: a batchsize x #actions matrix of Q-values,
+	outputs: a batchsize x num_actions matrix of Q-values,
 	where each row contains the Q-values for the actions
 	action_indices: contains batchsize indexes. action_indices[i] index 
 	corresponds to the index of action taken for the ith state in the 
@@ -91,7 +103,7 @@ class DQN:
 	'''
 	def get_loss(self, outputs, action_indices, targets):
 		'''
-		creates matrix of shape #actions x batchsize filled 
+		creates matrix of shape num_actions x batchsize filled 
 		with 0s.
 		'''
 		one_hot_mat = Variable(utils.float_tensor(outputs.size()[::-1]).zero_())
